@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>量子祖安 v9.5 - 贴吧喷神网页版</title>
+    <style>
+        body { background-color: #0a0a0a; color: #ff4d4f; font-family: "Microsoft YaHei", sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .container { width: 100%; max-width: 500px; text-align: center; }
+        h1 { font-size: 2rem; text-shadow: 0 0 10px #ff0000; margin-bottom: 30px; }
+        input { width: 100%; padding: 15px; border: 1px solid #444; background: #1a1a1a; color: #ff4d4f; font-size: 1.1rem; border-radius: 8px; margin-bottom: 20px; box-sizing: border-box; outline: none; }
+        button { width: 100%; padding: 15px; background: #ff0000; color: white; border: none; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #cc0000; }
+        button:disabled { background: #555; cursor: not-allowed; }
+        #output { margin-top: 30px; width: 100%; min-height: 120px; padding: 15px; background: #111; border-radius: 8px; text-align: left; font-size: 1.1rem; line-height: 1.6; border-left: 4px solid #ff0000; word-break: break-all; }
+        .footer { margin-top: 20px; font-size: 0.8rem; color: #666; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🤬 贴吧喷神·网页版</h1>
+    <input type="text" id="userInput" placeholder="输入对方的神金言论..." onkeydown="if(event.keyCode==13) startAttack()">
+    <button id="btn" onclick="startAttack()">🔥 降 维 打 击 🔥</button>
+    <div id="output">等待锁定目标...</div>
+    <div class="footer">系统状态：已加载暴躁模组 | 腾讯元宝驱动</div>
+</div>
+
+<script>
+    // 配置区域
+    const API_KEY = "sk-tPj12uKVSL5iMY0VV7wFQsbosZrJJPi41sMRWhuMxvXgGUv2";
+    const BASE_URL = "https://api.hunyuan.cloud.tencent.com/v1/chat/completions";
+
+    async function startAttack() {
+        const input = document.getElementById('userInput');
+        const btn = document.getElementById('btn');
+        const output = document.getElementById('output');
+        
+        const text = input.value.trim();
+        if (!text) return;
+
+        btn.disabled = true;
+        btn.innerText = "正在积攒怒气...";
+        output.innerText = "正在翻语录...";
+
+        try {
+            const response = await fetch(BASE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: "hunyuan-standard",
+                    messages: [
+                        { "role": "system", "content": "你是一个贴吧战斗力拉满的暴躁老哥。任务：用最扎心、恶毒的比喻回喷，不带脏字，字数30内，一句话破防。" },
+                        { "role": "user", "content": `回击这句话：${text}` }
+                    ],
+                    stream: false // 网页版为了代码简洁，先不用流式输出
+                })
+            });
+
+            const data = await response.json();
+            if (data.choices && data.choices[0].message) {
+                output.innerText = data.choices[0].message.content;
+            } else {
+                output.innerText = "输出受阻，可能是威力太大网断了。";
+            }
+        } catch (error) {
+            output.innerText = "错误: " + error.message;
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "🔥 降 维 打 击 🔥";
+        }
+    }
+</script>
+
+</body>
+</html>
